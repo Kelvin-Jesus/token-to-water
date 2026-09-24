@@ -222,10 +222,20 @@ export const TIERS = [
 
 export const TIER_COUNT = TIERS.length
 
-/** Everyday prompts up to frontier-scale training runs. */
+/**
+ * Tokens Claude (Opus 5.5, via Claude Code) processed to build this app, summed
+ * from the session transcript with `scripts/count-session-tokens.mjs`. Almost
+ * all of it is re-reading the conversation context on each call; the model
+ * wrote about half a million tokens of code, tests and replies. Snapshot taken
+ * when the preset was added (2026-09-24).
+ */
+export const THIS_PROJECT_TOKENS = 130_685_861
+
+/** Everyday prompts up to frontier-scale training runs — plus the cost of building this very app. */
 export const PRESETS = [
   { id: 'short-query', tokens: 150 },
   { id: 'extended-chat', tokens: 10_000 },
   { id: 'book-summary', tokens: 100_000 },
   { id: 'frontier-training', tokens: 15_000_000_000_000 },
+  { id: 'this-project', tokens: THIS_PROJECT_TOKENS },
 ] as const satisfies readonly Preset[]

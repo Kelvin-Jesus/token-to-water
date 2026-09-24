@@ -120,3 +120,14 @@ describe('App', () => {
     expect(document.getElementById('controls')).not.toBeNull()
   })
 })
+
+describe('"Building this app" preset', () => {
+  it('shows what building this app cost in water', async () => {
+    window.history.replaceState(null, '', '/')
+    const user = userEvent.setup()
+    render(<App />)
+    await user.click(screen.getByRole('button', { name: /Building this app/ }))
+    expect(screen.getByTestId('volume')).toHaveTextContent(/^1\d\d,\d{3}L$/)
+    expect(screen.getByTestId('fill-line')).toHaveTextContent('of an Olympic pool')
+  })
+})

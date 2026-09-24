@@ -117,6 +117,6 @@ export type MotionPreference = 'system' | 'reduce' | 'full'
 export type Locale = 'en' | 'pt-BR'
 
 export interface Preset {
-  readonly id: 'short-query' | 'extended-chat' | 'book-summary' | 'frontier-training'
+  readonly id: 'short-query' | 'extended-chat' | 'book-summary' | 'frontier-training' | 'this-project'
   readonly tokens: number
 }

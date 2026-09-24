@@ -70,6 +70,8 @@ export const en = {
   'presets.book-summary': 'Book / PDF summary',
   'presets.frontier-training': 'Frontier model training',
   'presets.frontier-training.detail': 'Claude Opus 5 / Fable, ChatGPT 6 Astra scale',
+  'presets.this-project': 'Building this app',
+  'presets.this-project.detail': 'Every token Claude processed to create this very page',
 
   'ladder.heading': 'From a drop to the whole planet',
   'ladder.description': 'Twenty containers, each one much bigger than the last. Pick one to fill it exactly.',
@@ -182,6 +184,8 @@ export const ptBR: Messages = {
   'presets.book-summary': 'Resumo de livro / PDF',
   'presets.frontier-training': 'Treino de modelo de fronteira',
   'presets.frontier-training.detail': 'Escala Claude Opus 5 / Fable, ChatGPT 6 Astra',
+  'presets.this-project': 'Criar este app',
+  'presets.this-project.detail': 'Todos os tokens que o Claude processou para criar esta página',
 
   'ladder.heading': 'De uma gota ao planeta inteiro',
   'ladder.description': 'Vinte recipientes, cada um bem maior que o anterior. Escolha um para enchê-lo exatamente.',

@@ -22,7 +22,7 @@ An AI water footprint visualizer. Type a number of tokens and watch the water th
 
 - **20-tier "Powers of Ten" ladder** drawn to scale by volume, with a map-style scale bar (mm → km).
 - **Human equivalencies**: "Equivalent to 1 bucket and 1 large bottle", "About 10.5 large pools", "42% of an Olympic pool".
-- **Controls**: formatted input with shorthand (`2.5k`, `1.2M`, `15T`, `1e24`), a logarithmic slider from 1 to 10²⁵ tokens, quick presets, and a tier ladder that jumps to any container.
+- **Controls**: formatted input with shorthand (`2.5k`, `1.2M`, `15T`, `1e24`), a logarithmic slider from 1 to 10²⁵ tokens, quick presets (including what it cost to build this app), and a tier ladder that jumps to any container.
 - **Comfortable for most people**: English and Brazilian Portuguese, light/dark/system theme, reduced motion, a pause button, keyboard and screen-reader support (WCAG 2.2 AA), 44 px touch targets, and shareable URLs (`?t=1500&f=0.3`).
 - **Fast on budget phones**: a Canvas 2D renderer (no 3D engine), adaptive quality with automatic battery-saver fallback under 45 FPS, 30 FPS when idle, a full pause when off screen, and a ~160 KB gzip critical path.
 
@@ -36,6 +36,23 @@ npm run preview    # serve dist/ on http://localhost:4173
 ```
 
 Requires Node 22+. Browser tests use Playwright's Chromium (`npx playwright install chromium` if it isn't cached yet).
+
+## What did building this app cost?
+
+The "Building this app" preset uses the tokens Claude (Opus 5.5, in Claude Code) actually processed while building the app in one session, summed from the session transcript:
+
+| | Tokens |
+| --- | --- |
+| **Processed in total** | **130,685,861** |
+| Re-reading the conversation on each call (cache) | 128,919,063 |
+| Fresh input | 1,256,440 |
+| Written by the model (code, tests, docs, replies) | 510,358 |
+
+At the app's 1 mL per token, that is about 131 m³ of water. Most of the total is cached context, which costs far less compute per token than fresh input, so treat the result as the generous upper bound the app's default rate already is. Recompute it from any Claude Code transcript:
+
+```bash
+node scripts/count-session-tokens.mjs ~/.claude/projects/<project>/<session-id>.jsonl
+```
 
 ## Deployment
 

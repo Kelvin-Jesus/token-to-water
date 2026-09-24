@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { TIER_IDS } from '@/types'
-import { DEFAULT_TOKENS, LITERS_PER_TOKEN, PRESETS, TIERS, TOKEN_LIMITS, WATER_FACTOR } from './scales'
+import { DEFAULT_TOKENS, LITERS_PER_TOKEN, PRESETS, THIS_PROJECT_TOKENS, TIERS, TOKEN_LIMITS, WATER_FACTOR } from './scales'
 
 describe('conversion constants', () => {
   it('uses 1 mL per token as the reference rate', () => {
@@ -100,13 +100,21 @@ describe('TIERS', () => {
 })
 
 describe('PRESETS', () => {
-  it('matches the four quick presets from the brief', () => {
+  it('matches the four quick presets from the brief, plus the cost of building this app', () => {
     expect(Object.fromEntries(PRESETS.map((preset) => [preset.id, preset.tokens]))).toEqual({
       'short-query': 150,
       'extended-chat': 10_000,
       'book-summary': 100_000,
       'frontier-training': 15e12,
+      'this-project': THIS_PROJECT_TOKENS,
     })
+  })
+
+  it('records a measured, plausible token count for building this app', () => {
+    // Summed from the Claude Code session transcript (scripts/count-session-tokens.mjs).
+    expect(Number.isInteger(THIS_PROJECT_TOKENS)).toBe(true)
+    expect(THIS_PROJECT_TOKENS).toBeGreaterThan(1e6)
+    expect(THIS_PROJECT_TOKENS).toBeLessThan(1e10)
   })
 
   it('stays within the token limits', () => {

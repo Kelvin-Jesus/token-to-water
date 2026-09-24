@@ -1,4 +1,4 @@
-import { BookOpen, BrainCircuit, type LucideIcon, MessageSquare, MessagesSquare } from 'lucide-react'
+import { BookOpen, BrainCircuit, Hammer, type LucideIcon, MessageSquare, MessagesSquare } from 'lucide-react'
 import { PRESETS } from '@/constants/scales'
 import { useI18n } from '@/i18n/useI18n'
 import { cn } from '@/lib/utils'
@@ -10,7 +10,11 @@ const ICONS: Readonly<Record<Preset['id'], LucideIcon>> = {
   'extended-chat': MessagesSquare,
   'book-summary': BookOpen,
   'frontier-training': BrainCircuit,
+  'this-project': Hammer,
 }
+
+/** Presets with an explanatory second line (kept verbatim: model names must not be auto-translated). */
+const DETAILS = new Set<Preset['id']>(['frontier-training', 'this-project'])
 
 export interface PresetButtonsProps {
   readonly tokens: number
@@ -18,7 +22,10 @@ export interface PresetButtonsProps {
   readonly className?: string
 }
 
-/** Everyday-to-extreme starting points. Toggle buttons (aria-pressed) so the current match is announced. */
+/**
+ * Everyday-to-extreme starting points, plus the tokens spent building this app (full width).
+ * Toggle buttons (aria-pressed) so the current match is announced.
+ */
 export function PresetButtons({ tokens, onSelect, className }: PresetButtonsProps) {
   const { locale, t } = useI18n()
   return (
@@ -37,6 +44,7 @@ export function PresetButtons({ tokens, onSelect, className }: PresetButtonsProp
               data-testid={`preset-${preset.id}`}
               className={cn(
                 'group flex min-h-16 items-start gap-2.5 rounded-xl border px-3 py-2.5 text-left transition-[border-color,background-color,box-shadow] duration-150',
+                preset.id === 'this-project' && 'col-span-2',
                 'outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 touch-manipulation',
                 active
                   ? 'border-primary/60 bg-primary/8 shadow-[inset_0_0_0_1px] shadow-primary/40'
@@ -51,9 +59,9 @@ export function PresetButtons({ tokens, onSelect, className }: PresetButtonsProp
                 <span className="text-[0.8125rem] leading-snug font-medium text-pretty">{t(`presets.${preset.id}`)}</span>
                 <span className="text-xs text-muted-foreground tabular-nums">
                   {formatCompact(preset.tokens, locale, 'short')} {t('input.unit')}
-                  {preset.id === 'frontier-training' ? (
+                  {DETAILS.has(preset.id) ? (
                     <span translate="no" className="block leading-snug">
-                      {t('presets.frontier-training.detail')}
+                      {t(`presets.${preset.id as 'frontier-training' | 'this-project'}.detail`)}
                     </span>
                   ) : null}
                 </span>
