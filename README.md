@@ -1,8 +1,22 @@
-# Token to Water
+<p align="center">
+  <img src="public/favicon.svg" width="96" height="96" alt="Token to Water logo: a white water drop on a blue rounded square">
+</p>
 
-[![CI](https://github.com/Kelvin-Jesus/token-to-water/actions/workflows/ci.yml/badge.svg)](https://github.com/Kelvin-Jesus/token-to-water/actions/workflows/ci.yml)
+<h1 align="center">Token to Water</h1>
 
-**Live: https://kelvin-jesus.github.io/token-to-water/**
+<p align="center">
+  <b>How much water do AI tokens cost?</b> From a single drop to all the water on Earth.
+</p>
+
+<p align="center">
+  <a href="https://kelvin-jesus.github.io/token-to-water/"><b>Open the live app →</b></a>
+  &nbsp;·&nbsp;
+  <a href="https://github.com/Kelvin-Jesus/token-to-water/actions/workflows/ci.yml"><img src="https://github.com/Kelvin-Jesus/token-to-water/actions/workflows/ci.yml/badge.svg" alt="CI status" align="center"></a>
+</p>
+
+<p align="center">
+  <img src="docs/screenshot.png" width="900" alt="Token to Water in dark mode: an Olympic pool 42% full next to a smaller pool, with the readout '1,050 m³ — About 10.5 large pools'">
+</p>
 
 An AI water footprint visualizer. Type a number of tokens and watch the water they cost fill a container. When it overflows, the camera zooms out to the next one, and keeps going from a single drop, through buckets, water trucks and Olympic pools, up to all the water on Earth.
 
@@ -91,7 +105,8 @@ Key decisions:
 | Accessibility (structure) | axe-core in jsdom | (in `npm test`) | WCAG 2.2 A/AA rules across the app, dialog and error states |
 | Type | Vitest `expectTypeOf` | `npm run test:types` | translation key parity, tier id union, discriminated unions |
 | Benchmarks | Vitest 5 `bench` fixture | `npm run test:bench` | per-frame JS budget for every tier and during a full sweep |
-| End-to-end | Playwright (desktop + Pixel 7) | `npm run test:e2e` | real user journeys on the production build, canvas pixel checks, persistence, sharing, no-flash theme |
+| End-to-end | Playwright (Chromium desktop, Pixel 7, Firefox) | `npm run test:e2e` | real user journeys on the production build, canvas pixel checks, persistence, sharing, no-flash theme |
+| Layout stability | Playwright (all three) | (in `test:e2e`) | drags the slider through 100 stops in EN and PT-BR: the slider and readout must not move by a pixel, and nothing may overflow sideways |
 | Deployment | Playwright + sub-path static server | (in `test:e2e`) | the build under `/token-to-water/`: assets, lazy chunk, favicon, manifest, shareable URLs |
 | Accessibility (real browser) | @axe-core/playwright | (in `test:e2e`) | colour contrast in both themes, keyboard-only use, focus rings, 320 px reflow, 200 % text, touch-target sizes |
 | Visual regression | Playwright screenshots, frozen clock | `npm run test:visual` | deterministic canvas and layout snapshots |

@@ -18,7 +18,7 @@
     "test:coverage": "vitest run --coverage",
     "test:types": "vitest run --typecheck.only",
     "test:bench": "vitest bench --run",
-    "test:e2e": "playwright test --project=desktop --project=mobile --project=pages",
+    "test:e2e": "playwright test --project=desktop --project=mobile --project=firefox --project=pages",
     "test:visual": "playwright test --project=visual",
     "test:visual:update": "playwright test --project=visual --update-snapshots",
     "test:perf": "npm run test:size && playwright test --project=perf --no-deps",

@@ -30,7 +30,7 @@ export function StatsGrid({ liters, className }: { readonly liters: number; read
             <GlassWater aria-hidden className="size-4" />
             {t('stats.drinking')}
           </dt>
-          <dd className="text-xl font-semibold text-balance tabular-nums" data-testid="stat-drinking">
+          <dd className="min-h-[2lh] text-xl font-semibold text-balance tabular-nums" data-testid="stat-drinking">
             {drinking ?? t('stats.drinkingBeyond')}
           </dd>
           <dd className="text-xs text-muted-foreground">{t('stats.drinkingNote')}</dd>

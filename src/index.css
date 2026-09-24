@@ -82,6 +82,8 @@
   }
 
   html {
+    /* Reserve the scrollbar's space even when the page fits, so it can never toggle and shift the layout. */
+    scrollbar-gutter: stable;
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
     -webkit-tap-highlight-color: transparent;

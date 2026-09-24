@@ -89,10 +89,14 @@ describe('TokenInput', () => {
     expect(input).toHaveValue('750')
   })
 
-  it('links the helper text for screen readers', () => {
+  it('links the reading and the shorthand examples for screen readers', () => {
     const { input } = setup()
-    const describedBy = input.getAttribute('aria-describedby')!
-    expect(document.getElementById(describedBy)).toHaveTextContent('Type a number or shorthand like 2.5k, 1.2M or 15T.')
+    expect(input).toHaveAccessibleDescription('Reads as 500 tokens e.g. 2.5k, 1.2M, 15T')
+  })
+
+  it('reads a single token in the singular', () => {
+    setup(1)
+    expect(screen.getByText('Reads as 1 token')).toBeInTheDocument()
   })
 
   it('exposes a labelled logarithmic slider with a readable value', () => {

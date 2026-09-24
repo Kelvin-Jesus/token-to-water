@@ -16,6 +16,9 @@ async function open(page: Page, query: string, options: { colorScheme?: 'light' 
   await page.evaluate(() => document.fonts.ready)
   await page.clock.runFor(25_000) // long enough for the full drop-to-Earth journey (~17 s)
   await waitForSettled(page)
+  // The ladder's smooth scroll to the active rung is run by the browser on real time, not the fake
+  // clock, so let it finish (the canvas stays frozen meanwhile: its rAF is on the fake clock).
+  await page.waitForTimeout(800)
 }
 
 test.describe('visual regression', () => {

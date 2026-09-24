@@ -120,7 +120,8 @@ function AppContent({
   )
 
   return (
-    <div className="flex min-h-svh flex-col">
+    // overflow-x: clip (not hidden) is a safety net against sideways scrolling that keeps `sticky` working.
+    <div className="flex min-h-svh flex-col overflow-x-clip">
       <a
         href="#controls"
         className="sr-only z-50 rounded-lg bg-primary px-4 py-2 text-primary-foreground focus:not-sr-only focus:fixed focus:top-3 focus:left-3"

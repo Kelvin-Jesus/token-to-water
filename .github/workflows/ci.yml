@@ -34,8 +34,8 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: npm }
       - run: npm ci
-      - run: npx playwright install --with-deps chromium
-      - run: npm run test:e2e # user journeys + WCAG 2.2 AA (axe) on desktop and phone, + the Pages sub-path build
+      - run: npx playwright install --with-deps chromium firefox
+      - run: npm run test:e2e # user journeys + WCAG 2.2 AA (axe) on desktop, phone and Firefox, + the Pages sub-path build
       - run: npm run test:perf
       # Visual baselines are platform-specific (fonts, antialiasing): regenerate them on this runner
       # with `npm run test:visual:update` before enabling this step.

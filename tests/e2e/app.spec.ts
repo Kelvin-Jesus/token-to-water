@@ -56,6 +56,8 @@ test.describe('controls', () => {
     await slider.focus()
     await page.keyboard.press('End')
     await expect(page.getByTestId('equivalence')).toHaveText('About 7.22 × all the water on Earth')
+    // On phones the slider sits below the stage and the loop pauses while it is off screen.
+    await canvas(page).scrollIntoViewIfNeeded()
     await waitForSettled(page)
     await expect(page.getByTestId('hud-tier')).toHaveText('Tier 20 of 20')
     await page.keyboard.press('Home')

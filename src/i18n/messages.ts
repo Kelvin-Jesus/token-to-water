@@ -54,8 +54,9 @@ export const en = {
 
   'input.label': 'Tokens',
   'input.unit': 'tokens',
-  'input.help': 'Type a number or shorthand like 2.5k, 1.2M or 15T.',
+  'input.examples': 'e.g. 2.5k, 1.2M, 15T',
   'input.reading': 'Reads as {value} tokens',
+  'input.readingOne': 'Reads as 1 token',
   'input.error.invalid': 'That doesn’t look like a number. Try 1500 or 2.5k.',
   'input.error.negative': 'Tokens can’t be negative. Enter 0 or more.',
   'input.error.too-large': 'That’s more than 10²⁵ tokens, the upper limit. Try a smaller number.',
@@ -165,8 +166,9 @@ export const ptBR: Messages = {
 
   'input.label': 'Tokens',
   'input.unit': 'tokens',
-  'input.help': 'Digite um número ou abreviação como 2,5 mil, 1,2 mi ou 15 tri.',
+  'input.examples': 'ex.: 2,5 mil, 1,2 mi, 15 tri',
   'input.reading': 'Lido como {value} tokens',
+  'input.readingOne': 'Lido como 1 token',
   'input.error.invalid': 'Isso não parece um número. Tente 1500 ou 2,5 mil.',
   'input.error.negative': 'Tokens não podem ser negativos. Digite 0 ou mais.',
   'input.error.too-large': 'Isso passa de 10²⁵ tokens, o limite máximo. Tente um número menor.',

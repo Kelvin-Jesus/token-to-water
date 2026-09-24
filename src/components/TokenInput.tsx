@@ -38,6 +38,7 @@ export function TokenInput({ tokens, onTokensChange, className }: TokenInputProp
   const { locale, t } = useI18n()
   const inputId = useId()
   const messageId = useId()
+  const examplesId = useId()
   const inputRef = useRef<HTMLInputElement>(null)
   const pendingCaret = useRef<number | null>(null)
   // `draft` holds the raw text while the field is being edited; null means "show the canonical value".
@@ -102,16 +103,19 @@ export function TokenInput({ tokens, onTokensChange, className }: TokenInputProp
 
   const value = draft ?? formatTokens(tokens, locale)
   const longReading = formatCompactCount(tokens, locale)
-  const helper = error
-    ? t(`input.error.${error}`)
-    : tokens >= 1e6 || (draft !== null && /[a-z]/i.test(draft))
-      ? t('input.reading', { value: longReading })
-      : t('input.help')
+  // Always the same kind of line (a reading, or an error while typing): swapping between a hint and a
+  // reading of different lengths used to re-wrap and push the slider around mid-drag.
+  const helper = error ? t(`input.error.${error}`) : tokens === 1 ? t('input.readingOne') : t('input.reading', { value: longReading })
 
   return (
     <div className={cn('flex flex-col gap-3', className)}>
       <div className="flex flex-col gap-2">
-        <Label htmlFor={inputId}>{t('input.label')}</Label>
+        <div className="flex items-baseline justify-between gap-3">
+          <Label htmlFor={inputId}>{t('input.label')}</Label>
+          <span id={examplesId} className="text-xs text-muted-foreground">
+            {t('input.examples')}
+          </span>
+        </div>
         <div className="relative">
           <Input
             ref={inputRef}
@@ -128,7 +132,7 @@ export function TokenInput({ tokens, onTokensChange, className }: TokenInputProp
             onKeyDown={handleKeyDown}
             onFocus={(event) => event.currentTarget.select()}
             aria-invalid={error !== null}
-            aria-describedby={messageId}
+            aria-describedby={`${messageId} ${examplesId}`}
             data-testid="token-input"
             className="pr-20 text-lg font-semibold tabular-nums sm:text-xl"
           />

@@ -9,6 +9,7 @@ const isCI = Boolean(process.env.CI)
  * compositing path.
  *
  * - desktop / mobile: end-to-end user journeys + accessibility (axe, keyboard, reflow, touch targets)
+ * - firefox: the same journeys in Gecko
  * - visual: screenshot regression with a frozen clock (deterministic canvas)
  * - perf: frame rate, frame cost, LOD fallback, pausing, web vitals, memory
  * - pages: the same build served under /token-to-water/, as on GitHub Pages
@@ -48,13 +49,15 @@ export default defineConfig({
   projects: [
     { name: 'desktop', testMatch: /(e2e|a11y)\/.*\.spec\.ts/, use: { ...devices['Desktop Chrome'] } },
     { name: 'mobile', testMatch: /(e2e|a11y)\/.*\.spec\.ts/, use: { ...devices['Pixel 7'] } },
+    // Gecko renders text, scrollbars and layout differently: user journeys run in Firefox too.
+    { name: 'firefox', testMatch: /e2e\/.*\.spec\.ts/, use: { ...devices['Desktop Firefox'] } },
     { name: 'visual', testMatch: /visual\/.*\.spec\.ts/, use: { ...devices['Desktop Chrome'] } },
     {
       name: 'perf',
       testMatch: /perf\/.*\.spec\.ts/,
       fullyParallel: false,
       // Frame-rate measurements need a quiet machine: in a full run, start only after every other project.
-      dependencies: ['desktop', 'mobile', 'visual', 'pages'],
+      dependencies: ['desktop', 'mobile', 'firefox', 'visual', 'pages'],
       use: { ...devices['Desktop Chrome'] },
     },
     { name: 'pages', testMatch: /pages\/.*\.spec\.ts/, use: { ...devices['Desktop Chrome'] } },
