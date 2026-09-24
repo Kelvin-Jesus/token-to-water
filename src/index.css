@@ -1,0 +1,311 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+/* Battery-saver styling: set on <html data-perf="low"> by the app when quality drops. */
+@custom-variant perf-low (&:where([data-perf='low'], [data-perf='low'] *));
+
+@theme inline {
+  --font-sans: 'Geist Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+
+  --animate-fade-in: fade-in 120ms ease-out;
+}
+
+/* Colour tokens (shadcn/ui convention). Text pairs meet WCAG AA contrast in both themes. */
+:root {
+  --radius: 0.75rem;
+  --background: oklch(0.985 0.003 247.86);
+  --foreground: oklch(0.208 0.042 265.76);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.208 0.042 265.76);
+  --primary: oklch(0.5 0.134 242.75);
+  --primary-foreground: oklch(0.985 0.003 247.86);
+  --secondary: oklch(0.968 0.007 247.9);
+  --secondary-foreground: oklch(0.208 0.042 265.76);
+  --muted: oklch(0.955 0.008 247.9);
+  --muted-foreground: oklch(0.47 0.035 257);
+  --accent: oklch(0.951 0.026 236.82);
+  --accent-foreground: oklch(0.293 0.066 243.16);
+  --destructive: oklch(0.505 0.213 27.52);
+  --border: oklch(0.912 0.011 255);
+  --input: oklch(0.869 0.02 252.89);
+  --ring: oklch(0.588 0.158 241.97);
+}
+
+.dark {
+  --background: oklch(0.155 0.03 264);
+  --foreground: oklch(0.968 0.007 247.9);
+  --card: oklch(0.195 0.034 265);
+  --card-foreground: oklch(0.968 0.007 247.9);
+  --primary: oklch(0.746 0.16 232.66);
+  --primary-foreground: oklch(0.208 0.042 265.76);
+  --secondary: oklch(0.279 0.041 260.03);
+  --secondary-foreground: oklch(0.968 0.007 247.9);
+  --muted: oklch(0.255 0.035 262);
+  --muted-foreground: oklch(0.745 0.03 256);
+  --accent: oklch(0.293 0.05 245);
+  --accent-foreground: oklch(0.951 0.026 236.82);
+  --destructive: oklch(0.704 0.191 22.22);
+  --border: oklch(1 0 0 / 0.1);
+  --input: oklch(1 0 0 / 0.16);
+  --ring: oklch(0.685 0.169 237.32);
+}
+
+@layer base {
+  *,
+  ::before,
+  ::after {
+    border-color: var(--color-border);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+    scroll-padding-top: 5rem;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background-color: color-mix(in oklab, var(--color-primary) 25%, transparent);
+  }
+}
+
+@layer components {
+  /* Floating HUD chips over the canvas. */
+  .hud-chip {
+    border-radius: 9999px;
+    border: 1px solid color-mix(in oklab, var(--color-border) 80%, transparent);
+    background-color: color-mix(in oklab, var(--color-card) 80%, transparent);
+    color: var(--color-foreground);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.06);
+    -webkit-backdrop-filter: blur(12px) saturate(1.4);
+    backdrop-filter: blur(12px) saturate(1.4);
+  }
+
+  [data-perf='low'] .hud-chip {
+    background-color: var(--color-card);
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  /* Progress ring: a conic gradient masked into a donut — no SVG, no layout. */
+  .fill-ring {
+    display: inline-block;
+    border-radius: 9999px;
+    background: conic-gradient(var(--color-primary) calc(var(--fill, 0) * 1turn), var(--color-muted) 0);
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3.5px));
+    mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3.5px));
+  }
+
+  /* Horizontal rail: hide the scrollbar but keep it scrollable, and fade the edges as a scroll cue. */
+  .ladder-rail {
+    scrollbar-width: none;
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 1rem, #000 calc(100% - 1rem), transparent);
+    mask-image: linear-gradient(to right, transparent, #000 1rem, #000 calc(100% - 1rem), transparent);
+  }
+
+  .ladder-rail::-webkit-scrollbar {
+    display: none;
+  }
+
+  .dialog-overlay[data-state='open'] {
+    animation: fade-in 160ms ease-out;
+  }
+
+  .dialog-overlay[data-state='closed'] {
+    animation: fade-out 120ms ease-in;
+  }
+
+  .dialog-content[data-state='open'] {
+    animation: sheet-in 220ms cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  .dialog-content[data-state='closed'] {
+    animation: sheet-out 150ms ease-in;
+  }
+
+  @media (min-width: 40rem) {
+    .dialog-content[data-state='open'] {
+      animation: dialog-in 180ms cubic-bezier(0.32, 0.72, 0, 1);
+    }
+
+    .dialog-content[data-state='closed'] {
+      animation: dialog-out 120ms ease-in;
+    }
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes sheet-out {
+  to {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -48%) scale(0.97);
+  }
+}
+
+@keyframes dialog-out {
+  to {
+    opacity: 0;
+    transform: translate(-50%, -48%) scale(0.97);
+  }
+}
+
+/* Respect both the OS setting and the in-app "Reduce motion" switch. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+[data-motion='reduce'] *,
+[data-motion='reduce'] ::before,
+[data-motion='reduce'] ::after {
+  animation-duration: 1ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 1ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* In the components layer so Tailwind utilities (e.g. `absolute`) still win over `position: relative`. */
+@layer components {
+  /*
+   * CSS-only tooltips for icon buttons (see components/ui/tooltip.tsx). Shown on
+   * hover-capable pointers and on keyboard focus; never on touch, where a
+   * lingering tooltip would cover the next tap target.
+   */
+  [data-tooltip] {
+    position: relative;
+  }
+
+  [data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 50%;
+    z-index: 50;
+    translate: -50% -2px;
+    padding: 0.3rem 0.6rem;
+    border-radius: 0.375rem;
+    background: var(--color-foreground);
+    color: var(--color-background);
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1.2;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition:
+      opacity 120ms ease-out,
+      translate 120ms ease-out;
+  }
+
+  @media (hover: hover) {
+    [data-tooltip]:hover::after {
+      opacity: 1;
+      translate: -50% 0;
+      transition-delay: 300ms;
+    }
+  }
+
+  [data-tooltip]:focus-visible::after {
+    opacity: 1;
+    translate: -50% 0;
+  }
+
+  /* Keep the rightmost header tooltip on screen. */
+  header [data-tooltip]:last-child::after {
+    left: auto;
+    right: 0;
+    translate: 0 -2px;
+  }
+
+  header [data-tooltip]:last-child:focus-visible::after {
+    translate: 0 0;
+  }
+
+  @media (hover: hover) {
+    header [data-tooltip]:last-child:hover::after {
+      translate: 0 0;
+    }
+  }
+
+  /* Tooltip that opens upwards and right-aligned: for controls at the bottom-right of the stage. */
+  .tooltip-up[data-tooltip]::after {
+    top: auto;
+    bottom: calc(100% + 6px);
+    left: auto;
+    right: 0;
+    translate: 0 2px;
+  }
+
+  .tooltip-up[data-tooltip]:focus-visible::after {
+    translate: 0 0;
+  }
+
+  @media (hover: hover) {
+    .tooltip-up[data-tooltip]:hover::after {
+      translate: 0 0;
+    }
+  }
+}

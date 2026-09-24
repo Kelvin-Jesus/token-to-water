@@ -1,0 +1,14 @@
+{
+  "$schema": "./node_modules/@stryker-mutator/core/schema/stryker-schema.json",
+  "//": "The dedicated @stryker-mutator/vitest-runner does not activate mutants under Vitest 5 (every mutant 'survives'). The command runner switches mutants through an environment variable instead, which works with any Vitest version.",
+  "testRunner": "command",
+  "commandRunner": { "command": "npx vitest run --config vitest.stryker.config.ts --bail 1" },
+  "mutate": ["src/lib/**/*.ts", "src/utils/**/*.ts", "src/i18n/format.ts", "!src/**/*.test.ts", "!src/lib/utils.ts"],
+  "coverageAnalysis": "off",
+  "reporters": ["clear-text", "progress", "html"],
+  "htmlReporter": { "fileName": "reports/mutation/index.html" },
+  "thresholds": { "high": 85, "low": 70, "break": 70 },
+  "concurrency": 8,
+  "timeoutMS": 30000,
+  "tempDirName": ".stryker-tmp"
+}

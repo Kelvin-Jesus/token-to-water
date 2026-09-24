@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Token to Water — AI water footprint visualizer</title>
+    <meta
+      name="description"
+      content="See how much water your AI tokens take — animated from a single drop, through buckets, trucks and Olympic pools, up to all the water on Earth."
+    />
+    <meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0b1120" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f8fafc" />
+    <meta name="color-scheme" content="light dark" />
+    <meta property="og:title" content="Token to Water" />
+    <meta property="og:description" content="How much water does AI drink? From a single drop to the whole planet." />
+    <meta property="og:type" content="website" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <script>
+      // Apply the saved/system theme before first paint to avoid a light→dark flash.
+      ;(function () {
+        var theme = 'system'
+        try {
+          theme = (JSON.parse(localStorage.getItem('ttw:prefs:v1') || '{}') || {}).theme || 'system'
+        } catch (error) {}
+        var dark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        document.documentElement.classList.toggle('dark', dark)
+        document.documentElement.style.colorScheme = dark ? 'dark' : 'light'
+      })()
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <noscript>Token to Water needs JavaScript to draw its animation.</noscript>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
