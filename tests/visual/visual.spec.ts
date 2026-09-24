@@ -14,7 +14,7 @@ async function open(page: Page, query: string, options: { colorScheme?: 'light' 
   await page.clock.install({ time: new Date('2026-01-01T00:00:00Z') })
   await page.goto(`/${query}`)
   await page.evaluate(() => document.fonts.ready)
-  await page.clock.runFor(10_000)
+  await page.clock.runFor(25_000) // long enough for the full drop-to-Earth journey (~17 s)
   await waitForSettled(page)
 }
 

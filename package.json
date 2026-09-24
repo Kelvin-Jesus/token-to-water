@@ -21,7 +21,7 @@
     "test:e2e": "playwright test --project=desktop --project=mobile --project=pages",
     "test:visual": "playwright test --project=visual",
     "test:visual:update": "playwright test --project=visual --update-snapshots",
-    "test:perf": "npm run test:size && playwright test --project=perf",
+    "test:perf": "npm run test:size && playwright test --project=perf --no-deps",
     "test:size": "node scripts/check-bundle-size.mjs",
     "test:mutation": "stryker run",
     "test:all": "npm run lint && npm run typecheck && npm run test:coverage && npm run test:types && npm run build && npm run test:size && playwright test"

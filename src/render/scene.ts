@@ -1,6 +1,7 @@
 import { TIERS } from '@/constants/scales'
 import { type Camera, camerasMatch, fitRect, type Insets, type Rect, stepCamera, type Viewport } from '@/lib/camera'
 import { resolveTier } from '@/lib/conversion'
+import { createLadder } from '@/lib/ladder'
 import { dampFactor, type SpringState, stepSpring } from '@/lib/motion'
 import { createRandom } from '@/lib/random'
 import { clamp, smoothstep } from '@/lib/utils'
@@ -41,14 +42,21 @@ export interface FrameInfo {
 export const CANVAS_FONT = "'Geist Variable', ui-sans-serif, system-ui, sans-serif"
 
 /**
- * The water level animates in log₁₀(litres) so every order of magnitude takes
- * the same time. The floor sits two decades below one drop: "empty".
+ * The water level animates along the tier ladder (see lib/ladder.ts), where
+ * every container is one unit wide — so each gets the same screen time,
+ * whether it is 1.3× or 180,000× bigger than the last. "Empty" sits two
+ * decades below one drop.
  */
-const LOG_FLOOR = Math.log10(TIERS[0].volumeLiters) - 2
-const FLOOR_LITERS = 10 ** LOG_FLOOR
-/** Critically damped; capped at ~3 decades/s so a 12-decade jump still shows every tier on the way. */
-const LEVEL_SPRING = { frequency: 6.5, maxSpeed: 3.2 } as const
-const CAMERA_HALF_LIFE = 0.16
+const FLOOR_LITERS = TIERS[0].volumeLiters / 100
+const LADDER = createLadder(FLOOR_LITERS)
+/**
+ * Critically damped spring on the ladder position, cruising at 1.3 tiers/s:
+ * ~0.75 s per container, slow enough to read each one and watch it overflow.
+ * A full drop-to-Earth journey takes ~16 s; a one-tier change under a second.
+ */
+const LEVEL_SPRING = { frequency: 4, maxSpeed: 1.3 } as const
+/** Gentle enough to follow the zoom-out, quick enough to finish before the next container fills. */
+const CAMERA_HALF_LIFE = 0.28
 /** Longest step simulated in one frame; a stalled tab should not teleport the animation. */
 const MAX_DT = 1 / 15
 const FRAMING_PADDING = 0.1
@@ -66,9 +74,9 @@ export class WaterScene {
   private height = 0
   private dpr = 1
   private insets: Insets = DEFAULT_INSETS
-  private targetLog = LOG_FLOOR
+  private targetPosition = -1
   private targetLiters = 0
-  private level: SpringState = { value: LOG_FLOOR, velocity: 0 }
+  private level: SpringState = { value: -1, velocity: 0 }
   private camera: Camera | null = null
   private time = 0
   private waveEnergy = 0.4
@@ -105,7 +113,7 @@ export class WaterScene {
   update(settings: Partial<SceneSettings>): void {
     this.settings = { ...this.settings, ...settings }
     if (settings.reducedMotion) {
-      this.level = { value: this.targetLog, velocity: 0 }
+      this.level = { value: this.targetPosition, velocity: 0 }
       this.camera = null
       this.particles.clear()
     }
@@ -116,18 +124,18 @@ export class WaterScene {
   setLiters(liters: number, immediate = false): void {
     if (Number.isNaN(liters)) throw new RangeError('liters must not be NaN')
     this.targetLiters = Math.max(0, liters)
-    this.targetLog = Math.log10(this.targetLiters + FLOOR_LITERS)
+    this.targetPosition = LADDER.toPosition(this.targetLiters + FLOOR_LITERS)
     if (immediate || this.settings.reducedMotion) {
-      this.level = { value: this.targetLog, velocity: 0 }
+      this.level = { value: this.targetPosition, velocity: 0 }
       this.camera = null
     }
   }
 
   /** Litres currently shown on screen (mid-animation this lags the target). */
   get displayedLiters(): number {
-    // Once settled, report the exact target: the log round-trip would leave 0.49999… L in a 0.5 L bottle.
-    if (this.level.value === this.targetLog) return this.targetLiters
-    return Math.max(0, 10 ** this.level.value - FLOOR_LITERS)
+    // Once settled, report the exact target: the round-trip would leave 0.49999… L in a 0.5 L bottle.
+    if (this.level.value === this.targetPosition) return this.targetLiters
+    return Math.max(0, LADDER.toLiters(this.level.value) - FLOOR_LITERS)
   }
 
   get viewport(): Viewport {
@@ -144,11 +152,12 @@ export class WaterScene {
     this.time += dt
 
     this.level = reducedMotion
-      ? { value: this.targetLog, velocity: 0 }
-      : stepSpring(this.level, this.targetLog, dt, LEVEL_SPRING)
-    // Snap before resolving the tier so the settling frame already reports the exact fill.
-    const levelSettled = Math.abs(this.level.value - this.targetLog) < 1e-4 && Math.abs(this.level.velocity) < 1e-3
-    if (levelSettled) this.level = { value: this.targetLog, velocity: 0 }
+      ? { value: this.targetPosition, velocity: 0 }
+      : stepSpring(this.level, this.targetPosition, dt, LEVEL_SPRING)
+    // Snap before resolving the tier so the settling frame already reports the exact fill. A thousandth of
+    // a rung is far below a pixel of water; demanding more would keep the loop "busy" for seconds.
+    const levelSettled = Math.abs(this.level.value - this.targetPosition) < 1e-3 && Math.abs(this.level.velocity) < 1e-2
+    if (levelSettled) this.level = { value: this.targetPosition, velocity: 0 }
 
     const position = resolveTier(this.displayedLiters)
     const { index } = position

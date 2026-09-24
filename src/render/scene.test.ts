@@ -25,7 +25,7 @@ function createScene(options: { quality?: PerformanceTier; reducedMotion?: boole
 }
 
 /** Run frames at 60 Hz until settled (or the time budget runs out). */
-function runUntilSettled(scene: WaterScene, maxSeconds = 20) {
+function runUntilSettled(scene: WaterScene, maxSeconds = 40) {
   let info = scene.frame(0)
   for (let t = 0; t < maxSeconds && !info.settled; t += 1 / 60) info = scene.frame(1 / 60)
   return info
@@ -54,24 +54,55 @@ describe('WaterScene', () => {
     scene.setLiters(EARTH * 0.5)
     const visited: number[] = []
     let info = scene.frame(0)
-    for (let t = 0; t < 30 && !info.settled; t += 1 / 60) {
+    for (let t = 0; t < 40 && !info.settled; t += 1 / 60) {
       info = scene.frame(1 / 60)
       if (visited.at(-1) !== info.index) visited.push(info.index)
     }
     expect(visited).toEqual(TIERS.map((_, index) => index))
   })
 
-  it('takes a few seconds, not an instant, to sweep twenty tiers', () => {
+  it('keeps every container on screen long enough to follow (≥ 0.5 s each)', () => {
+    const { scene } = createScene()
+    scene.setLiters(EARTH * 0.5)
+    const framesPerTier = new Map<number, number>()
+    let info = scene.frame(0)
+    for (let t = 0; t < 40 && !info.settled; t += 1 / 60) {
+      info = scene.frame(1 / 60)
+      framesPerTier.set(info.index, (framesPerTier.get(info.index) ?? 0) + 1)
+    }
+    for (const [index, frames] of framesPerTier) expect(frames / 60, `tier ${index}`).toBeGreaterThanOrEqual(0.5)
+  })
+
+  it('paces the whole drop-to-Earth journey at roughly a tier per 0.75 s', () => {
     const { scene } = createScene()
     scene.setLiters(EARTH * 0.5)
     let frames = 0
     let info = scene.frame(0)
-    while (!info.settled && frames < 60 * 30) {
+    while (!info.settled && frames < 60 * 40) {
       info = scene.frame(1 / 60)
       frames++
     }
-    expect(frames / 60).toBeGreaterThan(4)
-    expect(frames / 60).toBeLessThan(12)
+    // ~20.5 rungs at 1.3 tiers/s plus easing in and out.
+    expect(frames / 60).toBeGreaterThan(13)
+    expect(frames / 60).toBeLessThan(22)
+  })
+
+  it('still answers a one-step change promptly: visibly there in ~1.2 s, fully settled within 3 s', () => {
+    const { scene } = createScene()
+    scene.setLiters(15, true)
+    scene.frame(0)
+    scene.setLiters(20)
+    for (let i = 0; i < 24; i++) scene.frame(1 / 60) // 0.4 s: still visibly moving, not a jump cut
+    expect(scene.displayedLiters).toBeLessThan(19)
+    for (let i = 0; i < 48; i++) scene.frame(1 / 60) // 1.2 s: within 2 % of the target
+    expect(scene.displayedLiters / 20).toBeGreaterThan(0.98)
+    let frames = 72
+    let info = scene.frame(1 / 60)
+    while (!info.settled && frames < 600) {
+      info = scene.frame(1 / 60)
+      frames++
+    }
+    expect(frames / 60).toBeLessThan(3)
   })
 
   it('ends with the camera framing the active tier and its predecessor', () => {

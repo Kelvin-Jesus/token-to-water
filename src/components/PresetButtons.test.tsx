@@ -11,7 +11,7 @@ describe('PresetButtons', () => {
     expect(screen.getByRole('button', { name: /Short query\s*150 tokens/ })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Extended chat\s*10K tokens/ })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Book \/ PDF summary\s*100K tokens/ })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /Frontier model training\s*15T tokens\s*GPT-4 \/ Llama 3 scale/ })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Frontier model training\s*15T tokens\s*Claude Opus 5 \/ Fable, ChatGPT 6 Astra scale/ })).toBeInTheDocument()
   })
 
   it('selects a preset', async () => {

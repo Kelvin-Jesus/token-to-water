@@ -68,7 +68,7 @@ export const en = {
   'presets.extended-chat': 'Extended chat',
   'presets.book-summary': 'Book / PDF summary',
   'presets.frontier-training': 'Frontier model training',
-  'presets.frontier-training.detail': 'GPT-4 / Llama 3 scale',
+  'presets.frontier-training.detail': 'Claude Opus 5 / Fable, ChatGPT 6 Astra scale',
 
   'ladder.heading': 'From a drop to the whole planet',
   'ladder.description': 'Twenty containers, each one much bigger than the last. Pick one to fill it exactly.',
@@ -179,7 +179,7 @@ export const ptBR: Messages = {
   'presets.extended-chat': 'Conversa longa',
   'presets.book-summary': 'Resumo de livro / PDF',
   'presets.frontier-training': 'Treino de modelo de fronteira',
-  'presets.frontier-training.detail': 'Escala GPT-4 / Llama 3',
+  'presets.frontier-training.detail': 'Escala Claude Opus 5 / Fable, ChatGPT 6 Astra',
 
   'ladder.heading': 'De uma gota ao planeta inteiro',
   'ladder.description': 'Vinte recipientes, cada um bem maior que o anterior. Escolha um para enchê-lo exatamente.',

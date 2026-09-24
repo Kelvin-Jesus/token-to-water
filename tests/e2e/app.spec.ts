@@ -50,12 +50,13 @@ test.describe('controls', () => {
   })
 
   test('the slider works from the keyboard, all the way to the planet', async ({ page }) => {
+    test.setTimeout(60_000) // ~17 tiers at ~0.8 s each
     await page.goto('/')
     const slider = page.getByRole('slider', { name: 'Token count, logarithmic scale' })
     await slider.focus()
     await page.keyboard.press('End')
     await expect(page.getByTestId('equivalence')).toHaveText('About 7.22 × all the water on Earth')
-    await waitForSettled(page, 20_000)
+    await waitForSettled(page)
     await expect(page.getByTestId('hud-tier')).toHaveText('Tier 20 of 20')
     await page.keyboard.press('Home')
     await expect(page.getByRole('textbox', { name: 'Tokens' })).toHaveValue('1')

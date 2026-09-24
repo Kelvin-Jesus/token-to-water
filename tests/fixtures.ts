@@ -23,8 +23,8 @@ export { expect }
 
 export const canvas = (page: Page) => page.getByTestId('water-canvas')
 
-/** Wait until the water level and camera have reached their targets. */
-export async function waitForSettled(page: Page, timeout = 15_000): Promise<void> {
+/** Wait until the water level and camera have reached their targets (each tier takes ~0.8 s). */
+export async function waitForSettled(page: Page, timeout = 30_000): Promise<void> {
   await expect(canvas(page)).toHaveAttribute('data-settled', 'true', { timeout })
 }
 

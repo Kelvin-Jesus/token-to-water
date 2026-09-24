@@ -51,6 +51,7 @@ src/
 │   ├── equivalence.ts        "3 buckets and 1 bottle" (greedy, max two terms)
 │   ├── logScale.ts           logarithmic slider mapping
 │   ├── parseTokens.ts        locale-aware parsing, shorthand, live digit grouping
+│   ├── ladder.ts             litres ⇄ ladder position: equal screen time per tier
 │   ├── camera.ts             fixed-point zoom (the Powers-of-Ten camera move)
 │   ├── motion.ts             frame-rate-independent spring and damping
 │   ├── fpsMonitor.ts         sustained-low-FPS detection
@@ -75,7 +76,7 @@ Key decisions:
 
 - **The animation loop runs outside React.** `WaterScene.frame(dt)` is called from `requestAnimationFrame`. The HUD is updated by direct DOM writes, and only when its text changes. Props reach the scene through effects that wake the loop, and the loop stops itself once nothing moves.
 - **The camera zooms around a fixed point.** Scale and translation are not interpolated separately. Every transition is a pure zoom around the one world point both framings share, which is what makes it look like *Powers of Ten* rather than a pan.
-- **The water level animates in log₁₀(litres)** with a critically damped, speed-capped spring. A jump from 1 token to 10²⁴ sweeps through every tier in 7–8 seconds instead of teleporting.
+- **The water level animates along the tier ladder** (`lib/ladder.ts`), where every container is exactly one unit wide, using a critically damped spring capped at 1.3 tiers/s. Each container gets the same ~0.8 s on screen, whether it is 1.3× (bucket → jug) or 180,000× (lake → Amazon) bigger than the last. The opening intro takes ~5 s; a full drop-to-Earth journey ~17 s.
 - **Battery saver** (automatic below 45 FPS, or chosen in Settings) removes secondary wave harmonics, splash particles, bubbles, stars, glow and CSS backdrop blur, and caps DPR at 1.5.
 - **Settings is lazy-loaded** and preloaded on hover or focus of its button. Radix Tooltip was replaced by a CSS-only tooltip (it cost about 15 KB gzip).
 

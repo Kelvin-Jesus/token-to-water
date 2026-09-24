@@ -49,7 +49,14 @@ export default defineConfig({
     { name: 'desktop', testMatch: /(e2e|a11y)\/.*\.spec\.ts/, use: { ...devices['Desktop Chrome'] } },
     { name: 'mobile', testMatch: /(e2e|a11y)\/.*\.spec\.ts/, use: { ...devices['Pixel 7'] } },
     { name: 'visual', testMatch: /visual\/.*\.spec\.ts/, use: { ...devices['Desktop Chrome'] } },
-    { name: 'perf', testMatch: /perf\/.*\.spec\.ts/, fullyParallel: false, use: { ...devices['Desktop Chrome'] } },
+    {
+      name: 'perf',
+      testMatch: /perf\/.*\.spec\.ts/,
+      fullyParallel: false,
+      // Frame-rate measurements need a quiet machine: in a full run, start only after every other project.
+      dependencies: ['desktop', 'mobile', 'visual', 'pages'],
+      use: { ...devices['Desktop Chrome'] },
+    },
     { name: 'pages', testMatch: /pages\/.*\.spec\.ts/, use: { ...devices['Desktop Chrome'] } },
   ],
 })
