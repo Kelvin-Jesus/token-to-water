@@ -27,13 +27,15 @@ export function readDeviceHints(nav: Navigator | null = typeof navigator === 'un
 }
 
 /**
- * Starting quality before any frame has been measured. Core count alone is a
- * weak signal (budget phones ship 8 slow cores), so it only catches clearly
- * weak machines; the FPS monitor catches the rest at runtime.
+ * Starting quality before any frame has been measured. Core count is a weak
+ * signal both ways: budget phones ship 8 slow cores, while Safari caps what it
+ * reports and a 4-core laptop or CI runner holds 60 FPS even under 4× CPU
+ * throttling. So only clearly weak machines (≤ 2 cores or ≤ 2 GB) start in
+ * battery saver; the FPS monitor catches the rest at runtime.
  */
 export function initialPerformanceTier(hints: DeviceHints): { tier: PerformanceTier; reason: TierReason } {
   if (hints.saveData) return { tier: 'low', reason: 'save-data' }
-  if (hints.hardwareConcurrency !== undefined && hints.hardwareConcurrency > 0 && hints.hardwareConcurrency <= 4) {
+  if (hints.hardwareConcurrency !== undefined && hints.hardwareConcurrency > 0 && hints.hardwareConcurrency <= 2) {
     return { tier: 'low', reason: 'hardware' }
   }
   if (hints.deviceMemory !== undefined && hints.deviceMemory <= 2) return { tier: 'low', reason: 'hardware' }

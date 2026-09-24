@@ -12,8 +12,12 @@ describe('initialPerformanceTier', () => {
   })
 
   it('starts weak machines in battery saver', () => {
-    expect(initialPerformanceTier({ hardwareConcurrency: 4 })).toEqual({ tier: 'low', reason: 'hardware' })
+    expect(initialPerformanceTier({ hardwareConcurrency: 2 })).toEqual({ tier: 'low', reason: 'hardware' })
     expect(initialPerformanceTier({ hardwareConcurrency: 8, deviceMemory: 2 })).toEqual({ tier: 'low', reason: 'hardware' })
+  })
+
+  it('keeps 4-core devices in high quality (4-core laptops hold 60 FPS; Safari caps the reported count)', () => {
+    expect(initialPerformanceTier({ hardwareConcurrency: 4, deviceMemory: 4 })).toEqual({ tier: 'high', reason: 'default' })
   })
 
   it('ignores a zero core count (some privacy modes report 0)', () => {

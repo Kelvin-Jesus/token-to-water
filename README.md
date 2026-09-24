@@ -1,5 +1,9 @@
 # Token to Water
 
+[![CI](https://github.com/Kelvin-Jesus/token-to-water/actions/workflows/ci.yml/badge.svg)](https://github.com/Kelvin-Jesus/token-to-water/actions/workflows/ci.yml)
+
+**Live: https://kelvin-jesus.github.io/token-to-water/**
+
 An AI water footprint visualizer. Type a number of tokens and watch the water they cost fill a container. When it overflows, the camera zooms out to the next one, and keeps going from a single drop, through buckets, water trucks and Olympic pools, up to all the water on Earth.
 
 - **20-tier "Powers of Ten" ladder** drawn to scale by volume, with a map-style scale bar (mm → km).
@@ -18,6 +22,10 @@ npm run preview    # serve dist/ on http://localhost:4173
 ```
 
 Requires Node 22+. Browser tests use Playwright's Chromium (`npx playwright install chromium` if it isn't cached yet).
+
+## Deployment
+
+Every push to `main` runs CI (`.github/workflows/ci.yml`). The `deploy` job publishes `dist/` to GitHub Pages only after the static checks, unit tests and browser tests pass. The build uses a relative base (`base: './'` in `vite.config.ts`), so the same output works at a domain root, under `/token-to-water/`, or in any folder. The `pages` Playwright project proves this: `scripts/serve-subpath.mjs` serves `dist/` only under `/token-to-water/`, as Pages does, and any root-relative asset URL would 404.
 
 ## The conversion
 
@@ -83,15 +91,17 @@ Key decisions:
 | Type | Vitest `expectTypeOf` | `npm run test:types` | translation key parity, tier id union, discriminated unions |
 | Benchmarks | Vitest 5 `bench` fixture | `npm run test:bench` | per-frame JS budget for every tier and during a full sweep |
 | End-to-end | Playwright (desktop + Pixel 7) | `npm run test:e2e` | real user journeys on the production build, canvas pixel checks, persistence, sharing, no-flash theme |
+| Deployment | Playwright + sub-path static server | (in `test:e2e`) | the build under `/token-to-water/`: assets, lazy chunk, favicon, manifest, shareable URLs |
 | Accessibility (real browser) | @axe-core/playwright | (in `test:e2e`) | colour contrast in both themes, keyboard-only use, focus rings, 320 px reflow, 200 % text, touch-target sizes |
 | Visual regression | Playwright screenshots, frozen clock | `npm run test:visual` | deterministic canvas and layout snapshots |
 | Performance | Playwright + CDP | `npm run test:perf` | 60 FPS sweep, 4× CPU throttle, automatic battery-saver fallback, pause off screen, idle half rate, LCP and CLS, memory leaks, bundle-size budget |
-| Mutation | Stryker | `npm run test:mutation` | how well the unit tests catch injected bugs in `lib/`, `utils/` and `i18n/format.ts` |
+| Mutation | Stryker | `npm run test:mutation` | how well the unit tests catch injected bugs in `lib/`, `utils/` and `i18n/format.ts` (≈ 86 %; the build fails below 70 %) |
 
 `npm run test:all` runs everything except mutation testing. The perf suite reports its measurements (`[metric] sweep fps: 60.15 FPS`, and so on) next to the pass/fail result.
 
 Notes:
 
-- Visual baselines are platform-specific (`*-linux.png`). Regenerate them with `npm run test:visual:update` on a new OS or CI image.
+- Visual baselines are platform-specific (`*-linux.png`) and compared at a 0.1 % pixel tolerance, since rendering under the frozen clock is deterministic. Regenerate them with `npm run test:visual:update` on a new OS or CI image. CI skips this suite until baselines exist for its runner.
+- Starting quality: only devices reporting ≤ 2 CPU cores, ≤ 2 GB memory or data saver start in battery saver. A 4-core CI runner holds 60 FPS under 4× CPU throttling, and Safari under-reports cores. Everything else is left to the runtime FPS monitor.
 - Stryker uses its generic *command* runner, because `@stryker-mutator/vitest-runner` does not activate mutants under Vitest 5.
 - `?debug` exposes frame counters on `window.__TTW_PERF__`. `?debug&stress=30` burns 30 ms per frame to simulate a slow phone.

@@ -4,6 +4,9 @@ import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 
 export default defineConfig({
+  // Relative asset URLs: the same build works at a domain root, under GitHub Pages'
+  // /token-to-water/ sub-path, or from any other folder. (Single page, no client routing.)
+  base: './',
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },

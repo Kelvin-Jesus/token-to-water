@@ -1,4 +1,7 @@
+import fc from 'fast-check'
 import { describe, expect, it } from 'vitest'
+// Vite's ?raw import: the real shipped HTML, without pulling Node types into the browser tsconfig.
+import indexHtml from '../../index.html?raw'
 import { DEFAULT_PREFERENCES, loadPreferences, PREFERENCES_KEY, savePreferences } from './preferences'
 
 function memoryStorage(initial: Record<string, string> = {}) {
@@ -11,6 +14,36 @@ function memoryStorage(initial: Record<string, string> = {}) {
 }
 
 describe('preferences', () => {
+  it('defaults to following the system, automatically', () => {
+    expect(DEFAULT_PREFERENCES).toEqual({ theme: 'system', quality: 'auto', motion: 'system', locale: null })
+  })
+
+  it('uses the storage key that the no-flash theme script in index.html reads', () => {
+    expect(PREFERENCES_KEY).toBe('ttw:prefs:v1')
+    expect(indexHtml).toContain(`localStorage.getItem('${PREFERENCES_KEY}')`)
+  })
+
+  it('round-trips every valid combination (property)', () => {
+    const preferences = fc.record({
+      theme: fc.constantFrom('system', 'light', 'dark'),
+      quality: fc.constantFrom('auto', 'high', 'low'),
+      motion: fc.constantFrom('system', 'reduce', 'full'),
+      locale: fc.constantFrom('en', 'pt-BR', null),
+    } as const)
+    fc.assert(
+      fc.property(preferences, (value) => {
+        const storage = memoryStorage()
+        savePreferences(storage, value)
+        expect(loadPreferences(storage)).toEqual(value)
+      }),
+    )
+  })
+
+  it('rejects non-string values even when they would stringify to a valid one', () => {
+    const storage = memoryStorage({ [PREFERENCES_KEY]: JSON.stringify({ theme: ['dark'], quality: { toString: 'low' } }) })
+    expect(loadPreferences(storage)).toEqual(DEFAULT_PREFERENCES)
+  })
+
   it('falls back to defaults when nothing is stored or storage is unavailable', () => {
     expect(loadPreferences(memoryStorage())).toEqual(DEFAULT_PREFERENCES)
     expect(loadPreferences(undefined)).toEqual(DEFAULT_PREFERENCES)

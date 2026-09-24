@@ -65,7 +65,16 @@ test('stays usable under 4× CPU throttling (mid-range phone)', async ({ page })
   await cdp.send('Emulation.setCPUThrottlingRate', { rate: 1 })
 })
 
+/** Report a capable device so the starting tier is "high" on any machine, isolating the FPS-driven fallback. */
+async function emulateCapableDevice(page: Page): Promise<void> {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, 'hardwareConcurrency', { get: () => 8 })
+    Object.defineProperty(navigator, 'deviceMemory', { get: () => 8 })
+  })
+}
+
 test('falls back to battery saver automatically when frames are slow', async ({ page }) => {
+  await emulateCapableDevice(page)
   // `stress` burns 30 ms per frame: ~25 FPS, well under the 45 FPS threshold.
   await page.goto('/?debug&stress=30')
   await expect(canvas(page)).toHaveAttribute('data-quality', 'high')
@@ -74,6 +83,7 @@ test('falls back to battery saver automatically when frames are slow', async ({ 
 })
 
 test('does not fall back on a fast device', async ({ page }) => {
+  await emulateCapableDevice(page)
   await page.goto('/?debug')
   await page.waitForTimeout(5000)
   await expect(canvas(page)).toHaveAttribute('data-quality', 'high')

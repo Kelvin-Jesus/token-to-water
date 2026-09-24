@@ -71,6 +71,48 @@ describe('formatCompact', () => {
   })
 })
 
+describe('formatCompact scale words (every rung up to septillions)', () => {
+  const EN_LONG = ['thousand', 'million', 'billion', 'trillion', 'quadrillion', 'quintillion', 'sextillion', 'septillion']
+  const EN_SHORT = ['K', 'M', 'B', 'T', 'Qa', 'Qi', 'Sx', 'Sp']
+  const PT_ONE = ['mil', 'milhão', 'bilhão', 'trilhão', 'quatrilhão', 'quintilhão', 'sextilhão', 'septilhão']
+  const PT_OTHER = ['mil', 'milhões', 'bilhões', 'trilhões', 'quatrilhões', 'quintilhões', 'sextilhões', 'septilhões']
+  const PT_SHORT = [' mil', ' mi', ' bi', ' tri', ' quatri', ' quint', ' sext', ' sept']
+
+  it.each(EN_LONG.map((word, i) => [i + 1, word] as const))('en 10^%i → %s', (group, word) => {
+    expect(formatCompact(3 * 1000 ** group, 'en', 'long')).toBe(`3 ${word}`)
+    expect(formatCompact(3 * 1000 ** group, 'en', 'short')).toBe(`3${EN_SHORT[group - 1]}`)
+  })
+
+  it.each(PT_ONE.map((word, i) => [i + 1, word] as const))('pt-BR 10^%i → %s / plural', (group, one) => {
+    expect(formatCompact(1.5 * 1000 ** group, 'pt-BR', 'long')).toBe(`1,5 ${one}`)
+    expect(formatCompact(3 * 1000 ** group, 'pt-BR', 'long')).toBe(`3 ${PT_OTHER[group - 1]}`)
+    expect(formatCompact(3 * 1000 ** group, 'pt-BR', 'short')).toBe(`3${PT_SHORT[group - 1]}`)
+  })
+
+  it('keeps the sign in scientific notation', () => {
+    expect(formatCompact(-1.2e28, 'en')).toBe('−1.2 × 10²⁸')
+  })
+})
+
+describe('unit boundaries', () => {
+  it('switches m³, km and tonnes to words exactly at one million', () => {
+    expect(plain(formatVolume(999_000_000, 'en').text)).toBe('999,000 m³')
+    expect(plain(formatVolume(1e9, 'en').text)).toBe('1 million m³')
+    expect(plain(formatLength(999_000_000, 'en'))).toBe('999,000 km')
+    expect(plain(formatLength(1e9, 'en'))).toBe('1 million km')
+    expect(plain(formatMass(999_000_000, 'en').text)).toBe('999,000 t')
+    expect(plain(formatMass(1e9, 'en').text)).toBe('1 million t')
+  })
+
+  it('uses plain numbers for durations under a million units', () => {
+    expect(formatDuration(365.25 * 999_000, 'en')).toBe('1,000,000 years')
+  })
+
+  it('rounds integers', () => {
+    expect(formatTokens(1234.6, 'en')).toBe('1,235')
+  })
+})
+
 describe('formatCompactCount', () => {
   it('adds the Portuguese "de" after scale nouns, not after "mil"', () => {
     expect(formatCompactCount(15e12, 'pt-BR')).toBe('15 trilhões de')
@@ -85,6 +127,7 @@ describe('formatPowerOfTen', () => {
   it('uses superscript digits', () => {
     expect(formatPowerOfTen(15)).toBe('10¹⁵')
     expect(formatPowerOfTen(-3)).toBe('10⁻³')
+    expect(formatPowerOfTen(0)).toBe('10⁰')
   })
 })
 

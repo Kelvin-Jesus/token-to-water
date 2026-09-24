@@ -9,6 +9,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   static-and-unit:
     runs-on: ubuntu-latest
@@ -32,7 +35,7 @@ jobs:
         with: { node-version: 22, cache: npm }
       - run: npm ci
       - run: npx playwright install --with-deps chromium
-      - run: npm run test:e2e # user journeys + WCAG 2.2 AA (axe), desktop and phone
+      - run: npm run test:e2e # user journeys + WCAG 2.2 AA (axe) on desktop and phone, + the Pages sub-path build
       - run: npm run test:perf
       # Visual baselines are platform-specific (fonts, antialiasing): regenerate them on this runner
       # with `npm run test:visual:update` before enabling this step.
@@ -51,3 +54,27 @@ jobs:
         with: { node-version: 22, cache: npm }
       - run: npm ci
       - run: npm run test:mutation
+
+  # Publish to GitHub Pages only what passed every gate above.
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [static-and-unit, browser]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: npm run build
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with: { path: dist }
+      - id: deployment
+        uses: actions/deploy-pages@v4

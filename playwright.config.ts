@@ -11,6 +11,7 @@ const isCI = Boolean(process.env.CI)
  * - desktop / mobile: end-to-end user journeys + accessibility (axe, keyboard, reflow, touch targets)
  * - visual: screenshot regression with a frozen clock (deterministic canvas)
  * - perf: frame rate, frame cost, LOD fallback, pausing, web vitals, memory
+ * - pages: the same build served under /token-to-water/, as on GitHub Pages
  */
 export default defineConfig({
   testDir: './tests',
@@ -24,19 +25,31 @@ export default defineConfig({
     screenshot: 'only-on-failure',
   },
   expect: {
-    toHaveScreenshot: { maxDiffPixelRatio: 0.01, animations: 'disabled', caret: 'hide' },
+    // Rendering is deterministic under the frozen clock, so the tolerance can be tight: 0.1 % of pixels
+    // (about 900 on a desktop viewport) still catches a missing button or a changed word.
+    toHaveScreenshot: { maxDiffPixelRatio: 0.001, animations: 'disabled', caret: 'hide' },
   },
   snapshotPathTemplate: '{testDir}/{testFileDir}/__screenshots__/{arg}-{projectName}-{platform}{ext}',
-  webServer: {
-    command: 'npm run build && npm run preview',
-    url: `http://localhost:${PORT}`,
-    reuseExistingServer: !isCI,
-    timeout: 180_000,
-  },
+  webServer: [
+    {
+      command: 'npm run build && npm run preview',
+      url: `http://localhost:${PORT}`,
+      reuseExistingServer: !isCI,
+      timeout: 180_000,
+    },
+    {
+      // Waits for the first server's build (same dist/), then mounts it under the Pages sub-path.
+      command: 'node scripts/serve-subpath.mjs 4180 /token-to-water/',
+      url: 'http://localhost:4180/token-to-water/',
+      reuseExistingServer: !isCI,
+      timeout: 180_000,
+    },
+  ],
   projects: [
     { name: 'desktop', testMatch: /(e2e|a11y)\/.*\.spec\.ts/, use: { ...devices['Desktop Chrome'] } },
     { name: 'mobile', testMatch: /(e2e|a11y)\/.*\.spec\.ts/, use: { ...devices['Pixel 7'] } },
     { name: 'visual', testMatch: /visual\/.*\.spec\.ts/, use: { ...devices['Desktop Chrome'] } },
     { name: 'perf', testMatch: /perf\/.*\.spec\.ts/, fullyParallel: false, use: { ...devices['Desktop Chrome'] } },
+    { name: 'pages', testMatch: /pages\/.*\.spec\.ts/, use: { ...devices['Desktop Chrome'] } },
   ],
 })
